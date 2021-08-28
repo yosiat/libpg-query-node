@@ -2,6 +2,8 @@ const query = require('../');
 const { expect } = require('chai');
 const { omit, cloneDeepWith } = require("lodash");
 
+
+
 describe('Queries', () => {
   describe("Sync Parsing", () => {
     it("should return a single-item parse result for common queries", () => {
@@ -42,6 +44,21 @@ describe('Queries', () => {
     });
   });
 
+  describe('Fingerprint', () => {
+    it('should not fingerprint a bogus query', () => {
+      expect(() => query.fingerprintSync('NOT A QUERY')).to.throw(Error);
+    });
+
+    it('should fingerprint a query', () => {
+      const queries = ["select 1", "select null", "select ''", "select a, b"];
+      const results = queries.map(query.fingerprintSync);
+
+      results.forEach(res => {
+        expect(res).to.have.lengthOf(16);
+      });
+    });
+  });
+
   describe("Async parsing", () => {
     it("should return a promise resolving to same result", async () => {
       const testQuery = 'select * from john;';
@@ -61,6 +78,27 @@ describe('Queries', () => {
       });
     });
   })
+
+  describe('Async Fingerprint', () => {
+    it.only('should not fingerprint a bogus query', () => {
+      return query.fingerprint("NOT A QUERY").then(() => {
+        throw new Error("should have rejected");
+      }, (e) => {
+        expect(e).instanceof(Error);
+        expect(e.message).to.match(/NOT/);
+      });
+    });
+
+    it('should fingerprint a query', async () => {
+      const queries = ["select 1", "select null", "select ''", "select a, b"];
+      const results = await Promise.all(queries.map(query.fingerprint));
+
+      results.forEach(res => {
+        expect(res).to.have.lengthOf(16);
+      });
+    });
+  });
+
 });
 
 describe('PlPgSQL (async)', () => {
