@@ -4,3 +4,4 @@ export function parseQuerySync(sql: string): any;
 export function parsePlPgSQLSync(funcsSql: string): any;
 export function fingerprint(sql: string): Promise<string>;
 export function fingerprintSync(sql: string): string;
+export function deparseSync(sql: string): string;

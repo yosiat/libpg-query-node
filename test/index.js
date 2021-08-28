@@ -3,6 +3,8 @@ const { expect } = require('chai');
 const { omit, cloneDeepWith } = require("lodash");
 
 
+console.log(query.deparseSync(`/*hello world*/SELECT * FROM Tasks where merchant_id = 123 -- hello world`));
+
 
 describe('Queries', () => {
   describe("Sync Parsing", () => {
@@ -44,21 +46,6 @@ describe('Queries', () => {
     });
   });
 
-  describe('Fingerprint', () => {
-    it('should not fingerprint a bogus query', () => {
-      expect(() => query.fingerprintSync('NOT A QUERY')).to.throw(Error);
-    });
-
-    it('should fingerprint a query', () => {
-      const queries = ["select 1", "select null", "select ''", "select a, b"];
-      const results = queries.map(query.fingerprintSync);
-
-      results.forEach(res => {
-        expect(res).to.have.lengthOf(16);
-      });
-    });
-  });
-
   describe("Async parsing", () => {
     it("should return a promise resolving to same result", async () => {
       const testQuery = 'select * from john;';
@@ -79,26 +66,59 @@ describe('Queries', () => {
     });
   })
 
-  describe('Async Fingerprint', () => {
-    it.only('should not fingerprint a bogus query', () => {
-      return query.fingerprint("NOT A QUERY").then(() => {
-        throw new Error("should have rejected");
-      }, (e) => {
-        expect(e).instanceof(Error);
-        expect(e.message).to.match(/NOT/);
+  describe('Fingerprint', () => {
+    context('sync', () => {
+      it('should not fingerprint a bogus query', () => {
+        expect(() => query.fingerprintSync('NOT A QUERY')).to.throw(Error);
+      });
+
+      it('should fingerprint a query', () => {
+        const queries = ["select 1", "select null", "select ''", "select a, b"];
+        const results = queries.map(query.fingerprintSync);
+
+        results.forEach(res => {
+          expect(res).to.have.lengthOf(16);
+        });
       });
     });
 
-    it('should fingerprint a query', async () => {
-      const queries = ["select 1", "select null", "select ''", "select a, b"];
-      const results = await Promise.all(queries.map(query.fingerprint));
-
-      results.forEach(res => {
-        expect(res).to.have.lengthOf(16);
+    context('async', () => {
+      it('should not fingerprint a bogus query', () => {
+        return query.fingerprint("NOT A QUERY").then(() => {
+          throw new Error("should have rejected");
+        }, (e) => {
+          expect(e).instanceof(Error);
+          expect(e.message).to.match(/NOT/);
+        });
       });
-    });
+
+      it('should fingerprint a query', async () => {
+        const queries = ["select 1", "select null", "select ''", "select a, b"];
+        const results = await Promise.all(queries.map(query.fingerprint));
+
+        results.forEach(res => {
+          expect(res).to.have.lengthOf(16);
+        });
+      });
+    })
   });
 
+  describe('Deparse', () => {
+    context('sync', () => {
+      it('should not deparse a bogus query', () => {
+        expect(() => query.deparseSync('NOT A QUERY')).to.throw(Error);
+      });
+
+      it('should deparse a query', () => {
+        const rawQuery = `/*hello world*/select * from MyTable where x = 1 --another comment`
+
+        const deparsed = query.deparseSync(rawQuery);
+
+        expect(deparsed).to.eql('SELECT * FROM mytable WHERE x = 1')
+      });
+    });
+
+  });
 });
 
 describe('PlPgSQL (async)', () => {

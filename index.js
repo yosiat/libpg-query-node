@@ -35,5 +35,9 @@ module.exports = {
 
   fingerprintSync(query) {
     return PgQuery.fingerprintSync(query);
-  }
+  },
+
+  deparseSync(query) {
+    return PgQuery.deparseSync(query);
+  },
 };
