@@ -1,4 +1,4 @@
-const PgQuery = require('./build/Release/queryparser');
+const PgQuery = require("./build/Release/queryparser");
 
 module.exports = {
   parseQuery(query) {
@@ -26,10 +26,10 @@ module.exports = {
   },
 
   fingerprint(query) {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
       PgQuery.fingerprintAsync(query, (err, result) => {
         err ? reject(err) : resolve(result);
-      })
+      });
     });
   },
 
@@ -39,5 +39,17 @@ module.exports = {
 
   deparseSync(query) {
     return PgQuery.deparseSync(query);
+  },
+
+  normalize(query) {
+    return new Promise((resolve, reject) => {
+      PgQuery.normalizeAsync(query, (err, result) => {
+        err ? reject(err) : resolve(result);
+      });
+    });
+  },
+
+  normalizeSync(query) {
+    return PgQuery.normalizeSync(query);
   },
 };

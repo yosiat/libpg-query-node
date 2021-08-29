@@ -37,3 +37,10 @@ Napi::String DeparseSync(const Napi::CallbackInfo& info) {
   PgQueryDeparseResult deparseResult = pg_query_deparse_protobuf(result.parse_tree);
   return DeparseResult(info.Env(), deparseResult);
 }
+
+Napi::String NormalizeSync(const Napi::CallbackInfo& info) {
+  std::string query = info[0].As<Napi::String>();
+  PgQueryNormalizeResult result = pg_query_normalize(query.c_str());
+
+  return NormalizeResult(info.Env(), result);
+}

@@ -5,3 +5,5 @@ export function parsePlPgSQLSync(funcsSql: string): any;
 export function fingerprint(sql: string): Promise<string>;
 export function fingerprintSync(sql: string): string;
 export function deparseSync(sql: string): string;
+export function normalize(sql: string): Promise<string>;
+export function normalizeSync(sql: string): string;

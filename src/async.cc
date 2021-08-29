@@ -97,6 +97,37 @@ private:
   PgQueryFingerprintResult result;
 };
 
+class NormalizeWorker : public Napi::AsyncWorker {
+public:
+  NormalizeWorker(Napi::Function& callback, const std::string& query)
+  : Napi::AsyncWorker(callback), query(query) {}
+  ~NormalizeWorker() {}
+
+  // Executed inside the worker-thread.
+  // It is not safe to access JS engine data structure
+  // here, so everything we need for input and output
+  // should go on `this`.
+  void Execute () {
+    result = pg_query_normalize(query.c_str());
+  }
+
+  // Executed when the async work is complete
+  // this function will be run inside the main event loop
+  // so it is safe to use JS engine data again
+  void OnOK() {
+    Napi::HandleScope scope(Env());
+    try {
+      Callback().Call({Env().Undefined(), NormalizeResult(Env(), result) });
+    } catch (const Napi::Error& e) {
+      Callback().Call({ e.Value(), Env().Undefined() });
+    }
+  }
+
+private:
+  std::string query;
+  PgQueryNormalizeResult result;
+};
+
 Napi::Value ParseQueryAsync(const Napi::CallbackInfo& info) {
   std::string query = info[0].As<Napi::String>();
   Napi::Function callback = info[1].As<Napi::Function>();
@@ -119,4 +150,13 @@ Napi::Value FingerprintAsync(const Napi::CallbackInfo& info) {
   FingeprintWorker* worker = new FingeprintWorker(callback, query);
   worker->Queue();
   return info.Env().Undefined();
+}
+
+Napi::Value NormalizeAsync(const Napi::CallbackInfo& info) {
+  std::string query = info[0].As<Napi::String>();
+  Napi::Function callback = info[1].As<Napi::Function>();
+  NormalizeWorker* worker = new NormalizeWorker(callback, query);
+  worker->Queue();
+  return info.Env().Undefined();
+
 }

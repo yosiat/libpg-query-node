@@ -39,6 +39,17 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
       Napi::Function::New(env, DeparseSync)
   );
 
+  exports.Set(
+      Napi::String::New(env, "normalizeSync"),
+      Napi::Function::New(env, NormalizeSync)
+  );
+
+  exports.Set(
+      Napi::String::New(env, "normalizeAsync"),
+      Napi::Function::New(env, NormalizeAsync)
+  );
+
+
   return exports;
 }
 

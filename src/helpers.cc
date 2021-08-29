@@ -66,3 +66,15 @@ Napi::String DeparseResult(Napi::Env env, const PgQueryDeparseResult & result) {
   return returnVal;
 
 }
+
+Napi::String NormalizeResult(Napi::Env env, const PgQueryNormalizeResult & result) {
+  if (result.error) {
+    auto throwVal = CreateError(env, *result.error);
+    pg_query_free_normalize_result(result);
+    throw throwVal;
+  }
+
+  auto returnVal = Napi::String::New(env, result.normalized_query);
+  pg_query_free_normalize_result(result);
+  return returnVal;
+}

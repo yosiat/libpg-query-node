@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
-commit=55668e9003dfb148bc74b9c5d4a41facc5bad5c7
+commit=8c7c0828f482018dbba5e13a6a7d1e4b2773d868
 
 rDIR=$(pwd)
 rnd=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 13 ; echo)
 tmpDir=/tmp/$rnd
 
-mkdir -p $tmpDir
+echo "${tmpDir}"
+
 
 cd $tmpDir
 
-git clone -b 13-latest --single-branch https://github.com/pganalyze/libpg_query.git
+git clone -b normalize-funcname-error --single-branch https://github.com/yosiat/libpg_query.git
 cd libpg_query
+
 
 # echo "git checkout to $commit"
 git checkout $commit
