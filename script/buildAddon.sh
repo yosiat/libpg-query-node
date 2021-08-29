@@ -4,7 +4,7 @@ commit=8c7c0828f482018dbba5e13a6a7d1e4b2773d868
 
 rDIR=$(pwd)
 rnd=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 13 ; echo)
-tmpDir=/tmp/$rnd
+tmpDir=$(mktemp -d)
 
 echo "${tmpDir}"
 
